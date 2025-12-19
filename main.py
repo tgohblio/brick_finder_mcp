@@ -8,11 +8,11 @@ url = "https://api.brickognize.com/internal/search/"
 params = {"external_catalogs": "bricklink", "predict_color": "true"}
 headers = {
     "accept": "application/json",
-    "user-agent": "brickognize-python-client/0.1",
+    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
 }
 
 # Initialize the MCP server
-server = FastMCP("brick-identifier")
+server = FastMCP("brick-finder")
 
 
 def process_content(content: dict) -> dict:
@@ -63,9 +63,13 @@ def process_content(content: dict) -> dict:
 
 
 @server.tool()
-async def identify_brick(file_path: str="") -> dict:
+async def find_brick(file_path: str="") -> dict:
     """
-    Identify LEGO brick parts from an uploaded image given its file path
+    Search and identify LEGO bricks from an uploaded image given from file path.
+
+    Returns json result of the brick identification results, including
+    candidate names, probability scores, image URLs, BrickLink URLs, and
+    predicted colors.
     """
     if file_path == "":
         raise ValueError("file_path is required")
