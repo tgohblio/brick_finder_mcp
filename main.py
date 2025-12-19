@@ -1,6 +1,5 @@
 import os
 import httpx
-import mcp.types as types
 
 from mcp.server.fastmcp import FastMCP
 
@@ -16,7 +15,7 @@ headers = {
 server = FastMCP("brick-identifier")
 
 
-def process_content(content: dict) -> str:
+def process_content(content: dict) -> dict:
     """
     Process the raw json response and format it into a readable text summary.
     Args:
@@ -27,7 +26,7 @@ def process_content(content: dict) -> str:
             candidate names, probability scores, image URLs, BrickLink URLs, and
             predicted colors. Returns a "No candidates found" message if no matches.
     """
-    simplified = []
+    candidates = []
     
     for item in content.get('detected_items', []):
         for candidate in item.get('candidate_items', []):
@@ -41,7 +40,7 @@ def process_content(content: dict) -> str:
             
             # Get Bricklink URL if available
             external_items = candidate.get('external_items')
-            if external_items and isinstance(external_items, list) and external_items:
+            if isinstance(external_items, list) and len(external_items):
                 candidate_info["bricklink_url"] = external_items[0].get('url')
             
             # Get top candidate color if available
@@ -52,29 +51,19 @@ def process_content(content: dict) -> str:
                     "name": top_color.get('name'),
                     "score": top_color.get('score')
                 }
-            
-            simplified.append(candidate_info)
+
+            candidates.append(candidate_info)
     
-    # Format response for MCP
-    if simplified:
-        result_text = "### Brick Search Results ###\n\n"
-        for i, candidate in enumerate(simplified, 1):
-            result_text += f"Candidate {i}: {candidate['name']}\n"
-            result_text += f"  - probability: {candidate['score']:.3f}\n"
-            if candidate['image_url']:
-                result_text += f"  - image: {candidate['image_url']}\n"
-            if candidate['bricklink_url']:
-                result_text += f"  - bricklink: {candidate['bricklink_url']}\n"
-            if candidate['top_color']:
-                result_text += f"  - color: {candidate['top_color']['name']} (score: {candidate['top_color']['score']:.3f})\n"
-            result_text += "\n"
-    else:
-        result_text = "No brick candidates found in the uploaded image."
-    return result_text
+    result = {
+        "success": True,
+        "candidates": candidates,
+        "count": len(candidates)
+    }
+    return result
 
 
 @server.tool()
-async def identify_brick(file_path: str="") -> list[types.TextContent]:
+async def identify_brick(file_path: str="") -> dict:
     """
     Identify LEGO brick parts from an uploaded image given its file path
     """
@@ -101,9 +90,8 @@ async def identify_brick(file_path: str="") -> list[types.TextContent]:
             async with httpx.AsyncClient() as client:
                 response = await client.post(url, files=files, headers=headers, params=params)
                 response.raise_for_status()
-                content = process_content(response.json())
-
-                return [types.TextContent(type="text", text=content)]
+                result = process_content(response.json())
+                return result
         
     except FileNotFoundError:
         raise ValueError(f"File not found: {file_path}")
