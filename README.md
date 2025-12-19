@@ -12,7 +12,7 @@ This MCP server provides an AI assistant tool for identifying LEGO brick parts f
 - BrickLink URLs for purchasing information
 - Predicted brick colors with confidence scores
 
-The server is built using the FastMCP framework and provides a single `identify_brick` tool that can be used by MCP-compatible AI assistants like Claude Desktop.
+The server is built using the FastMCP framework and provides a single `find_brick` tool that can be used by MCP-compatible AI assistants like Claude Desktop.
 
 ## Features
 
@@ -31,12 +31,7 @@ The server is built using the FastMCP framework and provides a single `identify_
    cd brick_finder_mcp
    ```
 
-2. Install dependencies using uv (recommended):
-   ```bash
-   uv sync
-   ```
-
-   Or using pip:
+2. Install dependencies using pip:
    ```bash
    pip install -r requirements.txt
    ```
@@ -44,7 +39,7 @@ The server is built using the FastMCP framework and provides a single `identify_
 ## Run Locally
 1. **Start the server**:
    ```bash
-   python mcp_server.py
+   python main.py
    ```
 
 2. **Configure your MCP client** (e.g., Claude Desktop):
@@ -55,18 +50,17 @@ The server is built using the FastMCP framework and provides a single `identify_
      "mcpServers": {
        "brick-identifier": {
          "command": "python",
-         "args": ["path/to/brick_finder_mcp/mcp_server.py"],
-         "env": {}
+         "args": ["path/to/brick_finder_mcp/main.py"],
        }
      }
    }
    ```
 
-3. **Use the tool**: Once connected, you can use the `identify_brick` tool in your AI assistant by providing the path to an image file containing LEGO bricks.
+3. **Use the tool**: Once connected, you can use the `find_brick` tool in your AI assistant by providing the path to an image file containing LEGO bricks.
 
 ## Usage
 
-### Tool: `identify_brick`
+### Tool: `find_brick`
 
 Identifies LEGO brick parts from an image file.
 
@@ -104,8 +98,7 @@ Candidate 2: Brick 1 x 3
 
 ```
 brick_finder_mcp/
-├── mcp_server.py           # Main MCP server implementation
-├── brickognize_example.py  # Standalone example script
+├── main.py                # Main MCP server implementation
 ├── requirements.txt        # Python dependencies
 ├── pyproject.toml         # Poetry configuration
 ├── plan.md               # Project planning notes
