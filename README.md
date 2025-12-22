@@ -48,7 +48,7 @@ The server is built using the FastMCP framework and provides a single `find_bric
    ```json
    {
      "mcpServers": {
-       "brick-identifier": {
+       "brick-finder": {
          "command": "python",
          "args": ["path/to/brick_finder_mcp/main.py"],
        }
